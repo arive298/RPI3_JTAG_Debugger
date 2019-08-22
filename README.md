@@ -1,5 +1,5 @@
 # RPI3_JTAG_Debugger
-Tutorial on how to setup your Raspberry Pi 3 for Remote Debugging using a JTAG adapter and OpenOCD running on Ubuntu16.04
+Tutorial on how to setup your Raspberry Pi 3 for Remote Debugging using a JTAG adapter and OpenOCD running on Ubuntu16.04. Several parts of this tutorial were taken from the Sysprogs tutorial on Preparing Raspberry PI for JTAG Debugging https://sysprogs.com/VisualKernel/tutorials/raspberry/jtagsetup/  
 
 ## 1)	Hardware used:
 -Jtag Adapter: OLIMEX ARM-USB-OCD-H
@@ -10,6 +10,7 @@ Tutorial on how to setup your Raspberry Pi 3 for Remote Debugging using a JTAG a
 
 ## 2)	Wire connections between Raspberry Pi 3 and JTAG adapter:
 ![PIN Setup Guide](https://user-images.githubusercontent.com/32407701/63525134-2c2c0b80-c4cb-11e9-96f6-ecc47c8aff89.jpg)
+Table Picture obtained from Sysprogs tutorial https://sysprogs.com/VisualKernel/tutorials/raspberry/jtagsetup/
 #### Note: For TDI you can use GPIO 26 with ALT4 mode instead, but you would need to modify the code on the next step. Also, triple check wire connections.
 
 ## 3)	Raspberry Pi Setup
@@ -19,6 +20,10 @@ Create the file and add the following contents. (This file is provided in the re
 gedit JtagEnabler.cpp
 ```
 ```
+/*
+Source Code obtained from Sysprogs tutorial https://sysprogs.com/VisualKernel/tutorials/raspberry/jtagsetup/ 
+*/
+
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <stdio.h>
