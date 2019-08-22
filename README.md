@@ -48,7 +48,7 @@ Finally build it and install it.
 make 
 sudo make install 
 ```
-Add raspberry Pi configuration file for openocd. If you like this file is already provided in the repo.
+Add raspberry Pi configuration file for openocd. This file is already provided in the repo.
 ```
 gedit rpi3.cfg
 ```
