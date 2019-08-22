@@ -9,8 +9,7 @@ Tutorial on how to setup your Raspberry Pi 3 for Remote Debugging using a JTAG a
 -UART usb cable(Optional)
 
 ## 2)	Wire connections between Raspberry Pi 3 and JTAG adapter:
-Follow PIN Setup Guide picture. 
-
+![PIN Setup Guide](https://user-images.githubusercontent.com/32407701/63525134-2c2c0b80-c4cb-11e9-96f6-ecc47c8aff89.jpg)
 Note: For TDI you can use GPIO 26 with ALT4 mode instead, but you would need to modify the code on the next step. Also, triple check wire connections
 
 ## 3)	Raspberry Pi Setup
