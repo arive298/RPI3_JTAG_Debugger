@@ -24,7 +24,7 @@ gedit JtagEnabler.cpp
 #include <stdio.h>
 #include <unistd.h>
 
-#define BCM2708_PERI_BASE	0x3f000000   //change to 0x200000000 for rpi2
+#define BCM2708_PERI_BASE	0x3f000000   //change to 0x20000000 for rpi2
 #define GPIO_BASE			(BCM2708_PERI_BASE + 0x200000)
 
 class GpioFunctionSelector
