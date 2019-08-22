@@ -10,7 +10,7 @@ Tutorial on how to setup your Raspberry Pi 3 for Remote Debugging using a JTAG a
 
 ## 2)	Wire connections between Raspberry Pi 3 and JTAG adapter:
 ![PIN Setup Guide](https://user-images.githubusercontent.com/32407701/63525134-2c2c0b80-c4cb-11e9-96f6-ecc47c8aff89.jpg)
-Note: For TDI you can use GPIO 26 with ALT4 mode instead, but you would need to modify the code on the next step. Also, triple check wire connections
+#### Note: For TDI you can use GPIO 26 with ALT4 mode instead, but you would need to modify the code on the next step. Also, triple check wire connections.
 
 ## 3)	Raspberry Pi Setup
 Login into the raspberry pi and compile and run the JtagEnabler.cpp file. This file must be compile everytime you restart the RPI.
@@ -18,7 +18,7 @@ Login into the raspberry pi and compile and run the JtagEnabler.cpp file. This f
 g++ -o JtagEnabler JtagEnabler.cpp
 sudo ./JtagEnabler
 ```
-### Optional
+#### Optional
 Modify the /etc/profile file so that the JtagEnabler runs automatically every boot up.
 Open the profile file as root and add the command at the end that runs the JtagEnabler. 
 ```
