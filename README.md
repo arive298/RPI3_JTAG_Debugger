@@ -217,5 +217,33 @@ telnet localhost 4444
 gdb
 target remote :3333
 ```
+# How to obtain the process list
 
+#### Before taking any steps forward, make sure that Openocd is up and running correctly (Follow tutorial on Raspberry Pi JTAG Setup). In addition, for checking the correctness of the procedure use a device driver that obtains all the necessary fields for the task structures. There is already a device driver created for that purpose here https://github.com/arive298/GetAllTasks-Kernel-Device-Driver.
 
+## Method #1: Using the System.map file.
+For this procedure the kernel source must be compiled first so that we can obtain the System.map file. For instructions on how to compile the Raspbian OS kernel follow this link: https://www.raspberrypi.org/documentation/linux/kernel/building.md 
+The System.map file contains the addresses of the main kernel variables so from there we can obtain the init_task variable which is used by the Linux kernel to load the first process, thus this structure contains a pointer to all other tasks that will allows us to find them in memory by using the respective offsets.
+After obtaining the address of the init_task variable perform the following calculations:
+#### 			\*(\*(address of init_task) +0x300)-0x300	
+Then for all other next tasks use the following formula: 
+#### 			\*(current address + 0x300) - 0x300
+
+## Method #2: Using the current thread saved in the Stack Pointer
+To get the next pointer to the task:
+First get the SP and zero out the 13 least significant bits and add 0xc to obtain the field of the task_struct.
+First perform the following calculations to obtain the first task: 
+#### 			\*(\*(obtained address from SP) +0x300)-0x300 
+Then for all other next tasks use the following formula: 
+#### 			\*(current address + 0x300) - 0x300
+
+For previous task first perform the following calculations:
+#### 			\*(\*(obtained address from SP) + 0x304)-0x300
+Then for all other previous tasks use the following formula: 
+#### 			\*(current address + 0x304) - 0x300
+
+#### Note: the (\*) means the contents of, or in other words, interpret it as if you were dereferencing a pointer.
+
+#### Some helpful OpenOCD commands for reading memory and registers.
+- mdw <address> -> read a double word
+- reg <register name or number> -> read the contents of a register. If no parameter is entered, it shows all registers.
