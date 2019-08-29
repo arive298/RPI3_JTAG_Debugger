@@ -85,11 +85,11 @@ def find_tasks(task_name):
     first_proc_name = current_name
     print("First process name: "+first_proc_name)
     count = 0
-    while (current_name != task_name ):
+    while (current_name != task_name and (task_name not in current_name) ):
         current_address = get_next_task(current_address)
         current_name = get_task_name(current_address)
-        #print("Current_address: "+current_address)
-        #print("Current_name: "+current_name)
+        print("Current_address: "+current_address)
+        print("Current_name: "+current_name)
         count += 1
         if(count == 1):
             first_proc_name = current_name
@@ -100,6 +100,7 @@ def find_tasks(task_name):
         
 
     return current_address
+
 
 
 # sp = send_telnet_command("reg","90",0.1)
@@ -117,11 +118,11 @@ def find_tasks(task_name):
 
 # get_task_name(next)
 
-addr = find_tasks("kthreadd")
+addr = find_tasks("geany")
 if(addr == "not found"):
     print("Task was not found or it does not exists")
 else:
-    print("task wast found at address: "+addr)
+    print("task was found at address: "+addr)
 send_telnet_command("resume")
 #send_telnet_command("shutdown")
 
