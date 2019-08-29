@@ -2,14 +2,19 @@ import telnetlib
 
 HOST = "localhost"
 tn = telnetlib.Telnet(HOST,4444)
-
+DEBUG_TELNET = False
+DEBUG = False
 # use to send a singe command withut paramteres
 def send_telnet_command(cmd, param='', speed=2):
-   # print('writing to telnet server')
+    if(DEBUG_TELNET):
+       print('writing to telnet server')
     cmd = cmd+' '+param+"\r\n"
     cmd = cmd.encode('utf-8')
     tn.write(cmd)
-    #print('reading from telnet server')
+    
+    if(DEBUG_TELNET):
+        print('reading from telnet server')
+    
     ret = tn.read_until(b'jsfjjsd',speed)
     return ret.decode('utf-8')
 
@@ -61,12 +66,14 @@ def get_next_task(address):
     next_pointer = hex( (int(address,16))  + int('0x300',16))
     next_address = get_stripped_address( send_telnet_command('mdw', next_pointer, 0.1))
     next_task = hex( (int(next_address,16))  - int('0x300',16))
-   
-    # print("next_pointer: " + next_pointer)
-    # print("next_address: " + next_address)
-    # print("Next_task: "+next_task)
-    #content_of_next_task = send_telnet_command('mdw', next_task, 0.1)
-    #print("Contents of next_task: "+content_of_next_task)
+    
+    if(DEBUG):
+        print("next_pointer: " + next_pointer)
+        print("next_address: " + next_address)
+        print("Next_task: "+next_task)
+        content_of_next_task = send_telnet_command('mdw', next_task, 0.1)
+        print("Contents of next_task: "+content_of_next_task)
+
     return next_task
 
 def get_previous_task(address):
@@ -83,13 +90,18 @@ def find_tasks(task_name):
     
     current_name = get_task_name(current_address)
     first_proc_name = current_name
-    print("First process name: "+first_proc_name)
+    if(DEBUG):
+        print("First process name: "+first_proc_name)
+    
     count = 0
     while (current_name != task_name and (task_name not in current_name) ):
         current_address = get_next_task(current_address)
         current_name = get_task_name(current_address)
-        print("Current_address: "+current_address)
-        print("Current_name: "+current_name)
+       
+        if(DEBUG):
+            print("Current_address: "+current_address)
+            print("Current_name: "+current_name)
+        
         count += 1
         if(count == 1):
             first_proc_name = current_name
