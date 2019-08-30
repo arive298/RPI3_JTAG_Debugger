@@ -1,5 +1,5 @@
 import telnetlib
-import sys
+import task_struct_offsets
 
 HOST = "localhost"
 tn = telnetlib.Telnet(HOST,4444)
@@ -36,32 +36,32 @@ def get_stripped_reg(reg_contents):
     addr = reg_contents[index:(index+10)]
     return addr
 
-def get_stripped_address(address):
+def get_stripped_address(telnet_cmd_contents):
     """
     Function used to strip a specific address from the returned telnet command 
-    :Param - adress - The starting address to strip the name
+    :Param - telnet_cmd_contents - The contents of the command to strip 
     :Returns - the string address
     """
-    index = address.find(':')
+    index = telnet_cmd_contents.find(':')
     index = index + 2
-    address = address[index:(index+8)]
+    address = telnet_cmd_contents[index:(index+8)]
     return address
 
-def get_stripped_name(address):
+def get_stripped_name(telnet_cmd_contents):
     """
     Function used to get the stripped address of the task from the 'mdw' telnet command
-    :Param - address- The starting address to strip the name
+    :Param - telnet_cmd_contents- The contents of the command to strip the name
     :Returns - The hex string 
     """
-    index = address.find(':')
+    index = telnet_cmd_contents.find(':')
     index = index + 2
-    name_in_hex = (address[index:]).replace(" ","").replace("00000000","").replace("\r","").replace("\n","").replace(">","")
+    name_in_hex = (telnet_cmd_contents[index:]).replace(" ","").replace("00000000","").replace("\r","").replace("\n","").replace(">","")
     # name_in_hex = (address[index:]).replace("\r","").replace("\n","").replace(">","")
     return name_in_hex
 
 def change_endian(address):
     """
-    Used to change the little endian format of string in RPI3 to readable format. (Note: it works only for dword)
+    Used to change the little endian format of string in RPI3 to readable format. (Note: it works only for dword size)
     :Param - address The address to change endianes
     :Return - a hex list that can be later converted
     """
@@ -84,14 +84,14 @@ def get_task_name(task_addr):
     """
     task_addr = hex( int(task_addr,16) + int('0x4ac',16) ) 
     contents = get_stripped_name(send_telnet_command('mdw', (task_addr + " 4"), 0.1))
-    endians = change_endian(contents)
+    endians = change_endian(contents) ##list with fixed endianes
     index = len(endians)
-    for i in range(len(endians)):
-        if(endians[i] == 0):
+    for i in range(len(endians)):   ## looking for null terminating character 
+        if(endians[i] == 0):        
             index = i
             break
     
-    endians = endians[0:index]
+    endians = endians[0:index]      ## only save the string up to null charater
     string_result = ''.join(chr(i) for i in endians)
     return string_result
 
@@ -102,21 +102,24 @@ def get_first_task(sp_contents):
     :Param - sp_contents The address obtained from sp 
     :Returns - the address of the first task(currently running task)
     """
-    
-    bin_addr = hex( ((int(sp_contents,16)) & int('0xffffe000',16) ) + int('0xc',16)) 
-    task = get_stripped_address( send_telnet_command('mdw', bin_addr, 0.1))
+    SP_MASK = '0xffffe000' ## used to zero out the first 13 least seignificant bits from sp to the obtaining the currently running thread
+    bin_addr = hex( ((int(sp_contents,16)) & int(SP_MASK,16) ) + int('0xc',16)) ## mask and add offset to get task struct variable address from the current thread
+    task = get_stripped_address( send_telnet_command('mdw', bin_addr, 0.1) )     
     task = hex(int(task,16))
-    print(task)
+    
+    if(DEBUG):
+        print("First task address: "+task)
+    
     return task
 
 def get_next_task(address):
     """
-    Gets the address in memory of the next task
+    Gets the address in memory of the next task. Math used: *(address +0x300) -0x300
     :Param - address of the current task
     :Return - the calculated address
     """
     next_pointer = hex( (int(address,16))  + int('0x300',16))
-    next_address = get_stripped_address( send_telnet_command('mdw', next_pointer, 0.1))
+    next_address = get_stripped_address( send_telnet_command('mdw', next_pointer, 0.1)) ##address saved in the pointer
     next_task = hex( (int(next_address,16))  - int('0x300',16))
     
     if(DEBUG):
@@ -130,7 +133,7 @@ def get_next_task(address):
 
 def get_previous_task(address):
     """
-    Gets the address in memory of the previous task
+    Gets the address in memory of the previous task. Math used: *(address +0x304) -0x300
     :Param - address of the current task
     :Return - the calculated address
     """
@@ -153,7 +156,7 @@ def find_tasks(task_name, loop_backward = True):
         print("Task to find: "+task_name)
         print(halt_result)
 
-    sp = get_stripped_reg(send_telnet_command("reg","90",0.1))
+    sp = get_stripped_reg(send_telnet_command("reg","90",0.1))  ## 32-bits stack pointer in ARM
     addr = get_stripped_address(send_telnet_command("mdw",sp,0.1))
     current_address = get_first_task(addr)
     
@@ -178,10 +181,10 @@ def find_tasks(task_name, loop_backward = True):
             print("Current_name: "+current_name)
         
         count += 1
-        if(count == 1):
+        if(count == 1):             ## only save the next process as the first one to check for infinity loop logic because the first one is only temporarily created by the kernel
             first_proc_name = current_name
 
-        if(count > 1 and first_proc_name == current_name):
+        if(count > 1 and first_proc_name == current_name):  ## avoid infinity loop y going around the list without finding a task
             return "not found"
         
         
