@@ -98,6 +98,7 @@ int main()
 	printf("Successfully enabled JTAG pins. You can start debugging now.\n");
 
 	return 0;
+}
 ```
 All you have to do now is compile and run the output file.
 ```
